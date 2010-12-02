@@ -1,0 +1,2 @@
+module AppFrameHelper
+end

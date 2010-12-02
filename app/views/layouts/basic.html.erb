@@ -1,0 +1,20 @@
+<html>
+<head>
+  <title><%=yield(:title) || self.theme.title%> | <%="Application Title"%></title>
+  <%=javascript_include_tag :all %>
+  <%=stylesheet_link_tag "frame"%>
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <%=yield(:head)%>
+  <%=javascript_tag @content_for_page_scripts if @content_for_page_scripts %>
+  <%=content_tag(:style, @content_for_page_css, :type=>"text/css" ) if @content_for_page_css %>
+</head>
+<body class="<%=theme.style%>">
+  <div class="app_frame">
+    <%=render(:partial=>context.page.frame)%>
+  </div>
+  <div id="ajaxIndicator" style="display:none">
+    正在加载...
+  </div>
+</body>
+</html>
+
