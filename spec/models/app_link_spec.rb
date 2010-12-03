@@ -1,5 +1,4 @@
 require "spec_helper"
-require "app_link"
 
 describe AppLink do 
   it "should accept name and attributes to create a link" do 
@@ -26,12 +25,12 @@ describe AppLink do
 
   it "should generate a hyper-text link when you call to_s" do 
     link = AppLink.new("sample", :label => 'Sample', :href => "test")
-    link.to_s.should == "<a href='test'>Sample</a>"
+    link.to_s.should == "<a href='test' class='sample'>Sample</a>"
   end
 
   it "to_s(options) should take priority than attributes" do 
     link = AppLink.new("sample", :label => 'Sample', :href => "test")
-    link.to_s(:href=>'Pretest').should == "<a href='Pretest'>Sample</a>"
+    link.to_s(:href=>'Pretest').should == "<a href='Pretest' class='sample'>Sample</a>"
   end
 
 end

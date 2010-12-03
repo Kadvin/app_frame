@@ -1,7 +1,13 @@
 # 
-# =用于管理标准页面体的布局的对象
+# =Page: Application Framework Component
 #
-# 默认的Frame由如下结构组成：
+# The Structure of a html-page
+#
+# The default page structure like this:
+# 
+# (It's support by a defaut view: app_page
+#  The Main is mandatory, all others are optional)
+#
 #  ----------------------------------|
 #  |  App Header                     |
 #  |------|--------------------------|
@@ -15,41 +21,48 @@
 #  |------|--------------------------|
 #  |  App Footer                     |
 #  ----------------------------------|
-#  以上示意中，除App Head和App Foot之外的部分就是App Page
-#  它包括Left/Top/Main/Right等四个部分
-#  其中Main必须存在,也是缺省存在，其他部分均非必选
-#  AppPage中有相应的变量，left, top, main, right，它们的类型均为ViewComponent
-#  使用者可以通过：
+#
+#  The frame was sensitive to the component you specified:
 #   page.main = :plain
-#  这也相当于:
-#   page.main = ViewComponent::Plain.new
+#  It's equal to:
+#   page.main = ViewComponent.new(:plain)
 #
-#  你也可以设置一个不同的Frame，这样你可能需要一整套Skip
+#  If you need using another stucture beside this,
+#  you should provide another frame to render the page like this:
+#  page.frame = 'my_app_page'
+#  and you need a total pack of view components according to your new definitions
 #
+
 require "ostruct"
 
 class AppPage < OpenStruct
-  
+  attr_reader :frame
+
   def initialize
-    self.frame = "app_page"
-    # 由于这两个ViewComponent基本是默认存在的，所以默认设置，无需配置
+    super
+    # default frame
+    @frame = "app_page"
+    # default view components
+    # main yield all your real content
     self.main = ViewComponent.new(:main)
+    # and use a titlebar should your content context, such as subject and action title
     self.top  = ViewComponent.new(:titlebar)
   end
   
 
   # 
-  # 通过Method Missing的方式实现便捷的Component设置
-  #  使用者可以如此:
-  #  page.left = :default_component_name # => sidebar, titlebar, helpbar
+  # Enhance this class's Method Missing to set view component easily
+  #  You can follow those sample:
+  #  page.left = :default_component_name # => sidebar, titlebar, helpbar... 
+  #               # all view partial name in your skin's view_component path
   #  page.left = 'path/to/view/partial'
-  #  page.left?  # => 是否存在left view component
-  #  page.left   # => 取出左边的view component
+  #  page.left?  # => judge left view component exist or not
+  #  page.left   # => get the view component in left(position)
   #
   def method_missing_with_qaw(name, *args, &block)
-    name = name.to_s
-    method_missing_without_qaw(name, *args, &block) unless( name =~ /(\w+)(=|\?)/ )
-    if ($2 == "=" and args.size == 1) #page.main = :xxx等方式设置其中间的component
+    name.to_s =~ /(\w+)(=|\?)/
+    symbol, tail = $1, $2
+    if (tail == "=" and args.size == 1) #page.main = :xxx等方式设置其中间的component
       target = args.first
       vc = case target
         when NilClass then nil
@@ -57,8 +70,8 @@ class AppPage < OpenStruct
         else target
       end
       method_missing_without_qaw(name, vc, &block)
-    elsif ($2 == "?") #page.left?等方式询问其左边是否有component
-      !!self.send($1)
+    elsif (tail == "?") #page.left?等方式询问其左边是否有component
+      !!self.send(symbol)
     else
       method_missing_without_qaw(name, *args, &block)
     end

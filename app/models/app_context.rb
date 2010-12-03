@@ -1,66 +1,66 @@
 # 
-# =程序上下文/Application Context
+# =Application Context
 #
-# ==作用说明
-# 在每个控制器(Controller)的实例中都会存在
+# ==Usage Declare
+# The instance of AppContext will exist in every controller
 #
-# 由于每个控制器的实例，都是为某个特定的url请求服务而构造出来的
-# 所以，这个AppContext实例就可以做到为每个不同的动作设定上下文环境
+# Because controller was created to serve some request identified by url 
+# then the attached app_context can provide separate context for every action
 #
-# 更有甚之，我们并不需要开发者为每个控制器的动作定义上下文，通过在
-# * 类继承层次上
-# * 控制器的动作层次(所有动作，个别动作）
-# 两个维度上进行Inherit and Copy，最大限度的减少重复设定
-# (这个功能是通过CustomizeSupport完成的)
+# Even more, we needn't define the context one by one, and we can reuse in:
+# * Class Inheritance 
+# * Controller Actions(All actions, some actions)
+# two dimension to DRY
+# 
+# All app contexts are defined by DSL customize(...)
 #
-# ==配置说明
-# *controller*: 构造参数，只读
-#  该上下文所绑定的控制器名称
-#  如UsersController的名称为users
-# *action*: 构造参数，只读
-#  该上下文所绑定的控制器当前动作名称
-#  如UsersController#index的名称为index
-# *skin*: 皮肤参数，可读写
-#  该参数用于界面采用哪种皮肤，默认是AppFrame提供的sfp(Salesforce Platform)
-#  如果你自行开发了，可以使用自行开发的皮肤，相关文档请参考 AppPage
-# *theme*: 主题参数，可读，不可直接写（但该对象的属性可写），具体可参见AppTheme文档
-# *page*: 页面框架，可读，不可直接写（但该对象的属性可写），具体可参见AppPage文档
-# ==备注
-# Log/Security等业务策略设置，在从AppFwk剥离AppFrame时移走了，以后可以通过钩子/胶水插进来
-# * log是日志记录策略
-# * 以后也可以考虑把安全策略放这里
+# == Detail Introduction
+# *controller*: Construction parameter, readonly
+#  the controller name binded by this context
+#  Eg: UsersController's controller name is *users*
+# *action*: Construction parameter, readonly
+#  the action name binded by this context, :all means all action
+#  Eg: UsersController#index action name is *index*
+# 
+# *skin*: the skin used by this context, default value is 'basic'
+# *page*: the page structure
+# *menu*: the menu of this page
+# *sidebar*: the sidebar of this page
+# 
+#  
+# == Extend
+#  You can define even more attributes in the app context or sub-field of the app context(such as app page)
+#  your skin or frame renderer should aware all those extended attributes
+# 
 class AppContext
-  # * controller是控制器的名称，如UsersController的名称为users
-  # * action是动作的名称
+  # construction attributes
   attr_reader :controller, :action
-  # 所使用的布局，现在AppFrame支持多套布局方案
+  # the skin
   attr_accessor :skin
-  # * theme是显示风格
-  # * page是页面布局策略
-  # * menu是主菜单信息
-  # * side_bar是侧栏信息
-  # 虽然theme, page, log等对象是只读的
-  # 但其中策略是通用的
-  attr_reader :theme, :page
 
-  # 当前选中的入口Path
-  # 具有三个元素的数组
+  attr_reader :page
+
+  #
+  # The Selected Path of the Menu/SideBar/LinkGroup
+  # It's an array with 3 elements like:
   #  ['merchants', 'merchants_bar', 'merchant']
-  # 对应为:
-  #  [主菜单被选中Link名称，Sidebar被选中Group名称, Group中被选中Link名称]
-  # 把这些选中状态放在AppContext里面的主要原因是
-  #  AppContext基本是每个控制器方法一个实例
-  #  LinkGroup/Sidebar等对象是系统全局共享的，如果其记录的选中状态
-  #  那么就会导致在每个控制器里面都要记录一份完整的全系统菜单
+  # cooresponding to:
+  #  * The selected link name in current menu，
+  #  * The selected group name in current sidebar
+  #  * The selected link name in current link group of current sidebar
+  #
+  # The reason we put those path info here is:
+  #  AppContext is per controller/action per instance
+  #  But the LinkGroup/Sidebar is shared in global scope
+  #  If we record the selected path in them, it will affect across controller and actions
   #
   attr_reader :selected_path
 
-  # 构造特定动作的上下文
+  # construct an app context
   def initialize(controller, action)
     @controller = controller.to_s
     @action     = action.to_s
     @skin     = "basic"
-    @theme      = AppTheme.new(resource, operation)
     @page       = AppPage.new
     @selected_path = [nil, nil, nil]
   end
@@ -214,7 +214,6 @@ class AppContext
 
   # 让ActionContext从:all到具体action的克隆过程，分离theme,log对象
   def initialize_copy(from)
-    @theme = from.theme.clone if from.theme
     @page  = from.page.clone if from.page
     @selected_path = from.selected_path.dup
     if from.menu(false)
