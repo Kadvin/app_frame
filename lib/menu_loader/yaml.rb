@@ -14,7 +14,7 @@ module MenuLoader
         yml_files = self.options[:link_groups] || []
         yml_files.concat default_link_group_paths
         yml_files.uniq!
-        yml_files.inject(OpenStruct.new) do |total, yml_file|
+        yml_files.inject(HashWithIndifferentAccess.new) do |total, yml_file|
           parse_from_file(total, yml_file) do |name, definition|
             group = AppLinkGroup.new(name, definition)
             definition['links'].each do |link_def|
@@ -36,7 +36,7 @@ module MenuLoader
         yml_files = self.options[:side_bars] || []
         yml_files.concat default_side_bar_paths
         yml_files.uniq!
-        yml_files.inject(OpenStruct.new) do |total, yml_file|
+        yml_files.inject(HashWithIndifferentAccess.new) do |total, yml_file|
           parse_from_file(total, yml_file) do |name, group_names|
             sidebar = AppSideBar.new(name)
             group_names.each do |group_name|
