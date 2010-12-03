@@ -1,21 +1,21 @@
 require "spec_helper"
 
 #
-# AppContext is tied with a detailed controller's action
-# to provide context for render the view setup by app-frame
+# =AppContext is tied with a detailed controller's action
+#  to provide context for render the view
 #
 #  * host:  controller/action (readonly)
-#  * title: the title of the context (conveniant and settable)
+#  * label: the label of the context, such as subject, action label (conveniant and settable)
 #  * skin:  use which skin
 #  * page:  the layout of the view
-#  * menu:  target and selection
-#  * sidebar: target and selection
-#  * link_group: target and selection
+#  * menu:  current global menu and it's selection
+#  * sidebar: current side bar and it's selection
+#  * link_group: current link group of the side bar
 #  * other: more settings 
 #
 #  ctx = AppContext.new(controller, action)
-#  ctx.title # => actionname+controller_name
-#  ctx.title = "xxx"
+#  ctx.label # => action_label + subject_label
+#  ctx.label = "xxx"
 #  ctx.skin  # "basic"
 #  ctx.skin  = "another"
 #  ctx.page.header = :menubar
