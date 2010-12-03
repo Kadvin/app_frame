@@ -7,6 +7,7 @@ class ViewComponent < OpenStruct
   attr_accessor :path
 
   def initialize(path)
+    super()
     self.path = path
   end
 
