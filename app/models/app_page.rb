@@ -63,13 +63,12 @@ class AppPage < OpenStruct
     name.to_s =~ /(\w+)(=|\?)/
     symbol, tail = $1, $2
     if (tail == "=" and args.size == 1) #page.main = :xxx等方式设置其中间的component
-      target = args.first
-      vc = case target
-        when NilClass then nil
-        when Symbol, String then ViewComponent.new(target)
-        else target
+      method_missing_without_qaw(name, wrap(args.first), &block)
+      # Once the attribute was set, OpenStruct will generate a method, so logic in here was skipped
+      class << self; self; end.class_eval do  
+        undef_method(name)
+        define_method(name) { |x| modifiable[symbol.to_sym] = wrap(x)  }
       end
-      method_missing_without_qaw(name, vc, &block)
     elsif (tail == "?") #page.left?等方式询问其左边是否有component
       !!self.send(symbol)
     else
@@ -78,4 +77,13 @@ class AppPage < OpenStruct
   end
   # qaw = Query And Wrap
   alias_method_chain :method_missing, :qaw
+  
+  private
+    def wrap(target)
+      case target
+        when NilClass then nil
+        when Symbol, String then ViewComponent.new(target)
+        else target
+      end
+    end
 end

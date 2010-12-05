@@ -17,6 +17,14 @@ describe AppPage do
     page.middle.path.should == "view_components/sample_view_component"
   end
 
+  it "should accpet symbol or string as named view component event it was set" do 
+    page = AppPage.new
+    page.middle = :sample_view_component
+    page.middle = "view_components/sample_view_component"
+    page.middle.should be_kind_of(ViewComponent)
+    page.middle.path.should == "view_components/sample_view_component"
+  end
+
   it "should accept view partial path as extended view component" do 
     page = AppPage.new
     page.middle = "path/to/middle/view/component"

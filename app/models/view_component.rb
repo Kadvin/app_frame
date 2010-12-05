@@ -18,4 +18,7 @@ class ViewComponent < OpenStruct
     end
   end
 
+  def inspect
+    "#<#{self.class} #@path>"
+  end
 end

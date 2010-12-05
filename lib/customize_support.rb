@@ -1,26 +1,38 @@
 # 
-# =通过定制AppContext来定制利用Framework显示的界面
+# = Customize the WEBUI
+#  Define the attributes of the app context associated with the controller/action
 #  
 module CustomizeSupport
   module ClassMethods
+    def self.extended(base)
+      base.class_eval do 
+        class_inheritable_hash :app_contexts
+        self.app_contexts = {}
+      end
+    end
     #
-    # 定制主界面的展现形式
-    #  * actions: :all或者指定的几个action名称
-    #  还需要传入接受AppContext作为参数的Block，
-    #  用于具体微调页面各个方面的特征，具体可以参考AppContext对象的注释
+    # Customize the WEBUI's app context
+    #  * actions: :all, or some action names, such as :index, :new
+    #  * binding block with this method
     #  
-    #  样例如下:
+    # Eg:
+    #
     # customize(:index, :show) do |ctx|
     #   ctx.skin                 = 'sfp'
-    #   ctx.theme.style          = 'blue'
-    #   ctx.theme.resource       = "被管资源名称"
-    #   ctx.theme.action         = "当前动作名称"
-    #   ctx.page.layout          = "/path/to/view/replace/app_page"
+    #   ctx.subject_label        = "My Resource"
+    #   ctx.action_label         = "My Action"
+    #
+    #   ctx.page.frame           = "/path/to/view/replace/app_page"
     #   ctx.page.top             = :the_view_component_name or "/path/of/view/partial/"
     #   ctx.page.top.parameter_1 = any_object_as_parameter1
     #   ctx.page.top.parameter_2 = any_object_as_parameter2
-    #   ctx.menu                 = :the_link_group_name_loaded_by_menu_loader
-    #   ctx.side_bar             = :the_side_bar_name_loaded_by_menu_loader
+    #
+    #   ctx.current_menu         = :the_link_group_name_loaded_by_menu_loader
+    #   ctx.current_side_bar     = :the_side_bar_name_loaded_by_menu_loader
+    #   
+    #   ctx.selected_menu        = :the_selected_link_name_of_current_menu
+    #   ctx.selected_group       = :the_selected_link_group_name_of_current_side_bar
+    #   ctx.selected_link        = :the_selected_link_name_of_selected_group_in_current_side_bar
     # end
     #
     def customize(*actions)
@@ -36,21 +48,18 @@ module CustomizeSupport
       layout :determine_layout_by_context
     end
     
-    # 缺省上下文
+    # 
+    # == the default context associated with :all
+    #
     def default_context
-      unless(default = read_inheritable_attribute(:app_ctx_for_all))
-        default = AppContext.new(controller_name, :all)
-        write_inheritable_attribute(:app_ctx_for_all, default)
-      end
-      default
+      self.app_contexts[:all] ||= AppContext.new(controller_name, :all)
     end
-    # 特定动作的Context
+
+    # 
+    # == the context for action
+    #
     def context_for(action)
-      unless ctx = read_inheritable_attribute("app_ctx_for_#{action}".to_sym)
-        ctx = default_context.dup.update(controller_name, action)
-        write_inheritable_attribute("app_ctx_for_#{action}".to_sym, ctx)
-      end
-      ctx
+      self.app_contexts[action.to_sym] ||= default_context.dup.update(controller_name, action)
     end
   end
 
@@ -61,7 +70,9 @@ module CustomizeSupport
   end
   
   module SharedMethods
-    # 当前上下文
+    # 
+    # == Current Context
+    #
     def context
       if ActionView::Base === self
         self.controller.class.context_for(action_name)
@@ -69,8 +80,9 @@ module CustomizeSupport
         self.class.context_for(action_name)
       end
     end
-    # 让View里面可以直接访问到Context的对象
-    # Maybe可以采用增加 Binding的方式，就像ActionController对ActionView做的那样？
+    # 
+    # == Make the action view visits the context's object
+    # 
     def method_missing_with_customize(name, *args, &block)
       if( context.respond_to?(name) )
         context.send(name, *args, &block)
@@ -81,7 +93,7 @@ module CustomizeSupport
     alias_method_chain :method_missing, :customize
   end
 end
-# 主动附加到ActionController等一系列类上
+# Attach to Rails
 ActionController::Base.extend CustomizeSupport::ClassMethods
 ActionController::Base.send(:include, CustomizeSupport::InstanceMethods)
 ActionController::Base.send(:include, CustomizeSupport::SharedMethods)
