@@ -1,0 +1,23 @@
+zh-cn:
+  global_menu:
+    label: —全局菜单—
+    links:
+    - name: staff_menu
+      label: 个人事务
+      url: /efforts
+      description: 所有员工入口
+    - name: pjm_menu
+      label: 项目经理
+      url: /project_manager/efforts
+      description: 项目经理入口
+
+  business_group:
+    label: 业务支撑
+    css: bulletin
+    links:
+    - name: staffs_link
+      label: 员工管理
+      url: /admin/staffs
+    - name: projects_link
+      label: 项目管理
+      url: /admin/projects

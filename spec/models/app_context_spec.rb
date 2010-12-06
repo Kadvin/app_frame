@@ -90,7 +90,7 @@ describe AppContext do
       MenuLoader.stub!(:instance).and_return(store)
 
       link_group = AppLinkGroup.new(:sample_group)
-      link_group.stub!(:links).and_return(HashWithIndifferentAccess.new(:sample_link => AppLink.new(:sample)))
+      link_group.stub!(:links).and_return(HashWithIndifferentAccess.new(:sample_link => AppLink.new(:name => :sample)))
       link_groups = HashWithIndifferentAccess.new(:sample_menu => link_group, :sample_group => link_group)
       store.stub!(:link_groups).and_return(link_groups)
       

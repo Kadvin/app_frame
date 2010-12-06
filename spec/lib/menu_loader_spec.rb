@@ -1,37 +1,33 @@
 require "spec_helper"
+require "menu_loader"
 
 describe MenuLoader do 
+
+  before(:each) do 
+    I18n.locale = 'zh-cn'
+    @fixture_root = File.join(File.dirname(__FILE__), '../fixtures')
+    Rails = mock("Rails")
+    Rails.stub_chain(:logger, :info)
+    Rails.stub(:root).and_return(".")
+  end
+
   it "should use YAML Menu loader when I feed options with :type => :yaml" do 
     MenuLoader.create(:type => :yaml).should be_kind_of(MenuLoader::Yaml)
   end
 
   it "should load link and groups" do 
-    plain_text = %Q{
-zh-cn:
-  global_menu:
-    label: —全局菜单—
-    links:
-    -  staff_menu:
-         label: 个人事务
-         url: /efforts
-         description: 所有员工入口
-    -  pjm_menu:
-         label: 项目经理
-         url: /project_manager/efforts
-         description: 项目经理入口
-
-  business_group:
-    label: 业务支撑
-    css: bulletin
-    links:
-    -  staffs_link:
-         label: 员工管理
-         url: /admin/staffs
-    -  projects_link:
-         label: 项目管理
-         url: /admin/projects
-    }
+    ml = MenuLoader.create(:type => :yaml, :link_groups => [File.join(@fixture_root, "link_groups.yml")])
+    ml.should have(2).link_groups
+    ml.link_groups['global_menu'].should have(2).links
+    ml.link_groups['business_group'].should have(2).links
   end
 
-  it "should load sidebar from all yaml files with 'side_bar' as file name"
+  it "should load sidebars" do 
+    ml = MenuLoader.create(:type => :yaml, 
+                           :link_groups => [File.join(@fixture_root, "link_groups.yml")], 
+                           :side_bars => [File.join(@fixture_root, "side_bars.yml")] )
+    ml.should have(2).side_bars
+    ml.side_bars['first_bar'].should have(2).link_groups
+    ml.side_bars['second_bar'].should have(1).link_group
+  end
 end

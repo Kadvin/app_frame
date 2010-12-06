@@ -12,10 +12,10 @@ class AppSideBar < OpenStruct
   # SideBar's special attributes
   attr_reader :name, :link_groups
   
-  def initialize( name, attributes = {} )
+  def initialize( name, attrs = {} )
     @name = name
     @link_groups = ActiveSupport::OrderedHash.new
-    attributes.symbolize_keys!
+    attributes = attrs.symbolize_keys
     attributes[:visible] = attributes[:visible].nil? ? true : attributes[:visible]
     # Using my name as default CSS 
     attributes[:css] ||= @name

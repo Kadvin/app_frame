@@ -78,7 +78,7 @@ class AppContext < OpenStruct
   # == update self to be used in another scene
   #
   def update(controller, action)
-    puts format("Inherit %s/%s -> %s/%s", @controller, @action, controller, action)
+    # puts format("Inherit %s/%s -> %s/%s", @controller, @action, controller, action)
     @controller = controller
     @action = action
     # if the subject or action label was defined, then keep them, or regenrate it again.

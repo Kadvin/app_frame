@@ -1,0 +1,8 @@
+# 定义SideBar的文件
+zh-cn:
+  # 用于系统模块的group
+  first_bar:
+  -  global_menu
+  -  business_group
+  second_bar:
+  -  business_group

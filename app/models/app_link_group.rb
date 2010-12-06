@@ -15,10 +15,10 @@ class AppLinkGroup < OpenStruct
   include Enumerable
 
   # construct the link group by name and attributes
-  def initialize(name, attributes = {})
+  def initialize(name, attrs = {})
     @name = name
     @links = ActiveSupport::OrderedHash.new
-    attributes.symbolize_keys!
+    attributes = attrs.symbolize_keys
     attributes[:visible] = attributes[:visible].nil? ? true : attributes[:visible]
     # Using my name as default CSS 
     attributes[:css] ||= @name

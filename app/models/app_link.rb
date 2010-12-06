@@ -15,20 +15,19 @@
 require "ostruct"
 
 class AppLink < OpenStruct
-  # The identify of the link /Should we define it as common field?
-  attr_reader :name
 
-  def initialize(name, attributes = {})
-    @name = name.to_s
-    attributes.symbolize_keys!
+  def initialize(attrs = {})
+    attributes = attrs.symbolize_keys
+    raise "AppLink need a name attribute!" if attributes[:name].blank?
     attributes[:visible] = attributes[:visible].nil? ? true : attributes[:visible]
     # Using my name as default CSS 
-    attributes[:css] ||= @name
+    attributes[:css] ||= attributes[:name]
     super(attributes)
   end
   
   def to_s(options = {})
     new_attrs = modifiable.merge(options)
+    new_attrs.delete(:name)
     label = new_attrs.delete(:label)
     new_attrs.delete(:visible) #this attribute need not output
     css = new_attrs.delete(:css)

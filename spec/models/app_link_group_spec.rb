@@ -14,9 +14,9 @@ describe AppLinkGroup do
   end
 
   it "should accept link as its child" do 
-    group = AppLinkGroup.new("sample")
-    group << link1 = AppLink.new("link1")
-    group << link2 = AppLink.new("link2")
+    group = AppLinkGroup.new(:name => "sample")
+    group << link1 = AppLink.new(:name => "link1")
+    group << link2 = AppLink.new(:name => "link2")
     group.include?(link1).should be_true
     group.include?(link2).should be_true
   end
