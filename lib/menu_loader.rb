@@ -10,6 +10,7 @@
 #
 module MenuLoader
   class << self
+    delegate :link_groups, :side_bars, :to => :instance
     # Use factory-style initialization or insantiate directly from a subclass
     #
     # Options:

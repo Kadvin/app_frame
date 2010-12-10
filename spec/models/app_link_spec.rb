@@ -29,12 +29,12 @@ describe AppLink do
 
   it "should generate a hyper-text link when you call to_s" do 
     link = AppLink.new(:name => "sample", :label => 'Sample', :href => "test")
-    link.to_s.should == "<a href='test' class='sample'>Sample</a>"
+    link.to_s.should == "<a class='sample' href='test'>Sample</a>"
   end
 
   it "to_s(options) should take priority than attributes" do 
     link = AppLink.new(:name => "sample", :label => 'Sample', :href => "test")
-    link.to_s(:href=>'Pretest').should == "<a href='Pretest' class='sample'>Sample</a>"
+    link.to_s(:href=>'Pretest').should == "<a class='sample' href='Pretest'>Sample</a>"
   end
 
 end

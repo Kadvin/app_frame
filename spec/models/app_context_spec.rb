@@ -1,5 +1,5 @@
 require "spec_helper"
-
+require "basic_skin"
 #
 # =AppContext is tied with a detailed controller's action
 #  to provide context for render the view
@@ -161,9 +161,10 @@ describe AppContext do
       new.extra = "extra property"
       old.extra.should be_nil
     
-      new.page.extra = "extra_segment"
-      old.page.should_not be_extra
+      new.struct.extra = "extra_segment"
+      old.struct.should_not be_extra
     end
   end
+
 
 end

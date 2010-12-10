@@ -80,21 +80,6 @@ module CustomizeSupport
         self.class.context_for(action_name)
       end
     end
-    # 
-    # == Make the action view visits the context's object
-    # 
-    def method_missing_with_customize(name, *args, &block)
-      if( context.respond_to?(name) )
-        context.send(name, *args, &block)
-      else
-        method_missing_without_customize(name, *args, &block)
-      end
-    end
-    alias_method_chain :method_missing, :customize
+
   end
 end
-# Attach to Rails
-ActionController::Base.extend CustomizeSupport::ClassMethods
-ActionController::Base.send(:include, CustomizeSupport::InstanceMethods)
-ActionController::Base.send(:include, CustomizeSupport::SharedMethods)
-ActionView::Base.send(:include, CustomizeSupport::SharedMethods)

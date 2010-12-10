@@ -23,7 +23,7 @@
 #  Eg: UsersController#index action name is *index*
 # 
 # *skin*: the skin used by this context, default value is 'basic'
-# *page*: the page structure
+# *structure*: the structure defined by nested view components
 # *menu*: the menu of this page
 # *sidebar*: the sidebar of this page
 # *selections*: such as selected_menu, selected_group, selected_link
@@ -39,12 +39,15 @@ class AppContext < OpenStruct
   attr_reader :controller, :action
   
   # the labels of the current context
-  attr_reader :subject_label, :action_label
+  attr_reader :label, :subject_label, :action_label
 
   # the skin
   attr_accessor :skin
 
-  attr_reader :page
+  # the structure
+  attr_reader :struct
+  # you can refer it as structure also
+  alias_method :structure, :struct
 
   #
   # The Selected Path of the Menu/SideBar/LinkGroup
@@ -66,11 +69,12 @@ class AppContext < OpenStruct
   def initialize(controller, action)
     @controller = controller.to_s
     @action     = action.to_s
-    @skin     = "basic"
-    @page       = AppPage.new
+    @skin       = "basic"
+    @struct     = create_default_structure(skin)
     @selected_path = [nil, nil, nil]
     @subject_label = guess_subject_label
     @action_label  = guess_action_label
+    @label         = guess_label
     super()
   end
 
@@ -105,13 +109,6 @@ class AppContext < OpenStruct
   end
 
   # 
-  # == Get the context label
-  #
-  def label
-    @label ||= guess_label
-  end
-
-  # 
   # == Set the context label and ignore the subject, action label
   #
   def label=(new_label)
@@ -125,7 +122,7 @@ class AppContext < OpenStruct
   # if the menu does not exist in the MenuLoader, it will raise error
   #
   def menu=(menu_name)
-    found = MenuLoader.instance.link_groups[menu_name]
+    found = MenuLoader.link_groups[menu_name]
     raise format("Can't find link group(menu) with name = '%s'", menu_name) if not found
     @menu_name = menu_name
     @menu = found
@@ -185,7 +182,7 @@ class AppContext < OpenStruct
   # if the sidebar does not exist in the MenuLoader, it will raise error
   #
   def side_bar=(side_bar_name)
-    found = MenuLoader.instance.side_bars[side_bar_name]
+    found = MenuLoader.side_bars[side_bar_name]
     raise format("Can't find side bar with name = '%s'", side_bar_name) if not found
     @side_bar_name = found
     @side_bar = found
@@ -320,6 +317,19 @@ class AppContext < OpenStruct
     def guess_label
       action_label + subject_label
     end
+
+    # 
+    # Create Default Structure
+    #
+    def create_default_structure(skin)
+      begin
+        module_name  = skin.capitalize << "Skin"
+        module_klass = module_name.constantize
+      rescue 
+        raise format("Can't find module klass: %s", module_name)
+      end
+      module_klass.create_structure
+    end
   
     # 
     # == Deep clone the app context
@@ -327,7 +337,7 @@ class AppContext < OpenStruct
     #
     def initialize_copy(from)
       @table = from.table.dup
-      @page  = from.page.clone if from.page
+      @struct  = from.struct.dup if from.struct
       @selected_path = from.selected_path.dup
     end
   

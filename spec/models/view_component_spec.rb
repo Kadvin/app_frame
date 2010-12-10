@@ -1,6 +1,35 @@
 require "spec_helper"
 
 describe ViewComponent do 
+  it "should accept symbol as named sub component" do 
+    vc = ViewComponent.new('path/to/view/component')
+    vc.middle = :sample_view_component
+    vc.middle.should be_kind_of(ViewComponent)
+    vc.middle.path.should == "view_components/sample_view_component"
+  end
+
+  it "should accept view partial path as extended sub component" do 
+    vc = ViewComponent.new('path/to/view/component')
+    vc.middle = "path/to/middle/view/component"
+    vc.middle.should be_kind_of(ViewComponent)
+    vc.middle.path.should == "path/to/middle/view/component"
+  end
+
+  it "should accpet symbol or string as named sub component event it was set" do 
+    vc = ViewComponent.new('path/to/view/component')
+    vc.middle = :sample_view_component
+    vc.middle = "view_components/sample_view_component"
+    vc.middle.should be_kind_of(ViewComponent)
+    vc.middle.path.should == "view_components/sample_view_component"
+  end
+
+  it "should answer exist or not for special DSL like middle?" do 
+    vc = ViewComponent.new('path/to/view/component')
+    vc.should_not be_has_middle? # means middle does not exist
+    vc.middle = "path/to/middle/view/component"
+    vc.should be_has_middle? # means middle exist!
+  end
+
   it "should accept symbol as default view component path" do 
     vc = ViewComponent.new(:sample)
     vc.path.should == "view_components/sample"
@@ -11,10 +40,5 @@ describe ViewComponent do
     vc.path.should == "path/to/view/component"
   end
 
-  it "should accept open attribute" do 
-    vc = ViewComponent.new("sample")
-    vc.open_attribute = "open attribute"
-    vc.open_attribute.should == "open attribute"
-  end
 
 end
