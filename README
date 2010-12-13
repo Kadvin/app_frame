@@ -7,32 +7,11 @@ Especially, this WEB UI is not for public users, but your administrator or other
 Include:
 1. Layout
 2. Menu
-3. View Components
-4. Basic Skin
+3. Nested View Components
 
 Example
 =======
-  ----------------------------------|
-  |  App Head                       |
-  |------|--------------------------|
-  |      |  Top Side        |       |
-  | Left |------------------| Right |
-  | Side |                  | Side  |
-  |      |  Main            |       |
-  |      |                  |       |
-  |      |------------------|       |
-  |      |  Bottom Side     |       |
-  |------|--------------------------|
-  |  App Foot                       |
-  ----------------------------------|
 
-We provide several standard view components, such as:
-1. Global Menu
-2. Side Bar
-3. Title Bar
-4. Help Bar
-5. Search Bar
-and so on.
 
 Example goes here.
 

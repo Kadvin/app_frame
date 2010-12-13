@@ -22,6 +22,12 @@ class ViewComponent < OpenStruct
     @locals = HashWithIndifferentAccess.new
   end
 
+  #
+  # == Set the view component's path
+  # This path is relative to the skin's name
+  # If you give a string, it means a partial path = SKIN_NAME/path
+  # if you give a symbol, it means a partial path = SKIN_NAME/view_components/path
+  #
   def path=(path)
     @path = case path
     when String then path
@@ -62,6 +68,13 @@ class ViewComponent < OpenStruct
   # qaw = Query And Wrap
   alias_method_chain :method_missing, :qaw
 
+  #
+  # ==Judge whether this view component has a sub component as given name
+  #
+  def has?(part)
+    !!self.send(part)
+  end
+
   def inspect
     "#<#{self.class} #@path>"
   end
@@ -75,6 +88,7 @@ class ViewComponent < OpenStruct
     end
 
   private
+    # === Wrap the given value(String/Symbol) as a view component
     def wrap(target)
       case target
         when NilClass then nil

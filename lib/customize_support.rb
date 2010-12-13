@@ -3,6 +3,7 @@
 #  Define the attributes of the app context associated with the controller/action
 #  
 module CustomizeSupport
+  # For ActionController::Base to Extend
   module ClassMethods
     def self.extended(base)
       base.class_eval do 
@@ -63,12 +64,14 @@ module CustomizeSupport
     end
   end
 
+  # For ActionController::Base to Include
   module InstanceMethods
     def determine_layout_by_context
       context.skin
     end
   end
-  
+
+  # For ActionController::Base, ActionView::Base to Include
   module SharedMethods
     # 
     # == Current Context
@@ -81,5 +84,32 @@ module CustomizeSupport
       end
     end
 
+  end
+
+  # For ActionView::Base to Include
+  module ContextAware
+    def self.included(base)
+      base.class_eval do
+        def method_missing_with_context_aware(name, *args, &block)
+          if args.empty?
+            # puts "Context is: #{context}"
+            if( context.respond_to?(name) )
+              context.send(name)
+            else
+              # puts "@current_view_component = #{current_view_component} , name = #{name}"
+              if current_view_component and current_view_component.send(name)
+                current_view_component.send(name)
+              else
+                method_missing_without_context_aware(name, *args, &block)
+              end
+            end
+          else
+            method_missing_without_context_aware(name, *args, &block)
+          end
+        end
+
+        alias_method_chain :method_missing, :context_aware
+      end
+    end
   end
 end

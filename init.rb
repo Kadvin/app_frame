@@ -10,7 +10,7 @@ begin
   ActionController::Base.send(:include, CustomizeSupport::InstanceMethods, CustomizeSupport::SharedMethods)
   ActionController::Base.send(:helper, :app_frame)
   ActionView::Base.send(:include, CustomizeSupport::SharedMethods)
-  ActionView::Base.send(:include, ViewComponentAware)
+  ActionView::Base.send(:include, CustomizeSupport::ContextAware)
 rescue
   raise $! unless Rails.env.production?
 end
