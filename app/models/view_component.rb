@@ -15,11 +15,13 @@ require "ostruct"
 class ViewComponent < OpenStruct
   attr_accessor :path
   attr_reader   :locals
+  attr_reader    :view_component_name
 
-  def initialize(path)
+  def initialize(path, vcn = nil)
     super()
-    self.path = path
+    @view_component_name = vcn || path
     @locals = HashWithIndifferentAccess.new
+    self.path = path
   end
 
   #
@@ -48,11 +50,11 @@ class ViewComponent < OpenStruct
     name.to_s =~ /(\w+)(=|\?)/
     symbol, tail = $1, $2
     if (tail == "=" and args.size == 1) #page.main = :xxx等方式设置其中间的component
-      method_missing_without_qaw(name, wrap(args.first), &block)
+      method_missing_without_qaw(name, wrap(args.first, symbol), &block)
       # Once the attribute was set, OpenStruct will generate a method, so logic in here was skipped
       class << self; self; end.class_eval do  
         undef_method(name)
-        define_method(name) { |x| modifiable[symbol.to_sym] = wrap(x)  }
+        define_method(name) { |x| modifiable[symbol.to_sym] = wrap(x,symbol) }
       end
     elsif (tail == "?") # page.has_left?等方式询问其左边是否有component
       symbol =~ /has_(\w+)/
@@ -75,9 +77,19 @@ class ViewComponent < OpenStruct
     !!self.send(part)
   end
 
+  #
+  # == Ask the part name of the given view component
+  #
+  def position_of(vc)
+    pair = table.find{|pair| pair.last == vc}
+    pair and pair.first
+  end
+
   def inspect
     "#<#{self.class} #@path>"
   end
+
+  alias to_s inspect
 
     # 
     # == Deep clone the view component
@@ -89,10 +101,10 @@ class ViewComponent < OpenStruct
 
   private
     # === Wrap the given value(String/Symbol) as a view component
-    def wrap(target)
+    def wrap(target, name)
       case target
         when NilClass then nil
-        when Symbol, String then ViewComponent.new(target)
+        when Symbol, String then ViewComponent.new(target,name)
         else target
       end
     end

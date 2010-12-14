@@ -9,13 +9,13 @@ module AppFrameHelper
   def render_view_component(vc)
     #line = format("Render View Component: %s with locals: %s", File.join(context.skin, vc.path), vc.locals)
     #Rails.logger.debug(line)
-    # Remember old
-    old_view_component = @current_view_component
+    # Remember parent
+    old = @current_view_component
     # Register/Update current view component 
     @current_view_component = vc
     result = render(:partial => File.join(context.skin, vc.path), :locals => vc.locals.merge(vc)) if vc
     # Restore old
-    @current_view_component = old_view_component
+    @current_view_component = old
     result
   end
 
@@ -26,7 +26,6 @@ module AppFrameHelper
   #  render(:partial => vc,path, :locals=>{:current_view_component => vc, ...})
   # Because the sub-partial(not view component won't aware it
   #
-  def current_view_component
-    @current_view_component
-  end
+  def current_view_component; @current_view_component end
+
 end
