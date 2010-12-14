@@ -13,7 +13,7 @@ module AppFrameHelper
     old = @current_view_component
     # Register/Update current view component 
     @current_view_component = vc
-    result = render(:partial => File.join(context.skin, vc.path), :locals => vc.locals.merge(vc)) if vc
+    result = render(:partial => File.join(context.skin, vc.path), :locals => vc.locals_as_hash) if vc
     # Restore old
     @current_view_component = old
     result

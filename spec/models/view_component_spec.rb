@@ -40,5 +40,15 @@ describe ViewComponent do
     vc.path.should == "path/to/view/component"
   end
 
+  it "should duplicate a separate view component including its children" do
+    vc = ViewComponent.new("path/to/view/component")
+    vc.left = ViewComponent.new("path/to/view/component/left")
+    vc.right = ViewComponent.new("path/to/view/component/right")
+    another = vc.dup
+    another.left.path = "path/to/view/another/view/component/left"
+    vc.left.path.should_not == another.left.path
+    vc.right.path.should == another.right.path
+  end
+
 
 end

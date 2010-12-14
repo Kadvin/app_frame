@@ -13,14 +13,14 @@
 require "ostruct" 
 
 class ViewComponent < OpenStruct
+  attr_reader   :view_component_name
   attr_accessor :path
   attr_reader   :locals
-  attr_reader    :view_component_name
 
   def initialize(path, vcn = nil)
     super()
-    @view_component_name = vcn || path
-    @locals = HashWithIndifferentAccess.new
+    @view_component_name = vcn || path.to_s
+    @locals = OpenStruct.new
     self.path = path
   end
 
@@ -80,9 +80,8 @@ class ViewComponent < OpenStruct
   #
   # == Ask the part name of the given view component
   #
-  def position_of(vc)
-    pair = table.find{|pair| pair.last == vc}
-    pair and pair.first
+  def locals_as_hash
+    locals.send(:table).merge(table)
   end
 
   def inspect
@@ -95,8 +94,11 @@ class ViewComponent < OpenStruct
     # == Deep clone the view component
     #
     def initialize_copy(from)
-      super(from)
+      super
+      @view_component_name = from.view_component_name.dup if from.view_component_name
+      @path = from.path.dup if from.path
       @locals = from.locals.dup
+      from.table.each_pair{|k,v|@table[k] = v.dup if v}
     end
 
   private
