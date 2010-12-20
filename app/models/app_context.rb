@@ -35,6 +35,9 @@
 require "ostruct"
 
 class AppContext < OpenStruct
+  # stylesheets and javascripts
+  attr_reader :stylesheets, :javascripts
+  
   # construction attributes
   attr_reader :controller, :action
   
@@ -66,10 +69,12 @@ class AppContext < OpenStruct
   attr_reader :selected_path
 
   # construct an app context
-  def initialize(controller, action)
+  def initialize(controller, action, skin = "basic")
     @controller = controller.to_s
     @action     = action.to_s
-    @skin       = "basic"
+    @skin       = skin
+    @javascripts = [:defaults] # default javascripts
+    @stylesheets = [@skin] # skin's css is included default
     @struct     = create_default_structure(skin)
     @selected_path = [nil, nil, nil]
     @subject_label = guess_subject_label
@@ -315,7 +320,7 @@ class AppContext < OpenStruct
     # == Guess the label
     #
     def guess_label
-      action_label + subject_label
+      (action_label + subject_label).titleize
     end
 
     # 
@@ -323,7 +328,7 @@ class AppContext < OpenStruct
     #
     def create_default_structure(skin)
       begin
-        module_name  = skin.capitalize << "Skin"
+        module_name  = skin.capitalize << "FrameSkin"
         module_klass = module_name.constantize
       rescue 
         raise format("Can't find module klass: %s", module_name)
@@ -339,6 +344,8 @@ class AppContext < OpenStruct
       @table = from.table.dup
       @struct  = from.struct.dup if from.struct
       @selected_path = from.selected_path.dup
+      @javascripts = from.javascripts.dup
+      @stylesheets = from.stylesheets.dup
     end
   
 end

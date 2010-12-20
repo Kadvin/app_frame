@@ -1,8 +1,8 @@
 # 
-# = Customize the WEBUI
+# = AppFrame support you Customize the WEBUI
 #  Define the attributes of the app context associated with the controller/action
 #  
-module CustomizeSupport
+module AppFrame
   # For ActionController::Base to Extend
   module ClassMethods
     def self.extended(base)

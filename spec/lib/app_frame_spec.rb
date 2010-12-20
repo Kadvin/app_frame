@@ -1,26 +1,29 @@
 require "spec_helper"
 require "rails/all"
-require "customize_support"
+require "app_frame"
+require "basic_skin"
 
-describe CustomizeSupport do 
+ActionController::Base.extend AppFrame::ClassMethods
+
+describe AppFrame do
   class SampleController < ActionController::Base
   end
   trap_context = proc do |ctx|
     ctx.skin = "sample skin"
     
-    ctx.page.left = "path/to/leftbar"
+    ctx.struct.left = "path/to/leftbar"
 
-    ctx.page.top = "path/to/topbar"
-    ctx.page.top.params = "sample"
+    ctx.struct.top = "path/to/topbar"
+    ctx.struct.top.locals.params = "sample"
   end
 
   judge_context = proc do |ctx|
     ctx.skin.should == "sample skin"
 
-    ctx.page.left.path.should == "path/to/leftbar"
+    ctx.struct.left.path.should == "path/to/leftbar"
 
-    ctx.page.top.path.should == "path/to/topbar"
-    ctx.page.top.params.should == "sample"
+    ctx.struct.top.path.should == "path/to/topbar"
+    ctx.struct.top.locals.params.should == "sample"
   end
 
   it "should blame when developer not feed any actions and block" do 
