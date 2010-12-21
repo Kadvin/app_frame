@@ -294,9 +294,9 @@ class AppContext < OpenStruct
     def guess_subject_label
       return @controller if @controller == "application"
       model = @controller.classify.constantize
-      model.human_name || model.name
+      model.model_name.human
     rescue
-      @controller.classify
+      @controller.titleize
     end
     
     # 
@@ -311,9 +311,9 @@ class AppContext < OpenStruct
       I18n.t(@action, :scope=>%W[#{@controller.singularize} actions], 
                       :raise => true)
     rescue
-      I18n.t(@action, :scope=>%W[activerecord actions], 
-                      :default=>@action.to_s.humanize,
-                      :raise => true) rescue @action.to_s.capitalize
+      I18n.t(@action, :scope=>%W[activemodel actions],
+                      :default=>@action.to_s.titleize,
+                      :raise => true) rescue @action.to_s.titleize
     end
 
     # 
